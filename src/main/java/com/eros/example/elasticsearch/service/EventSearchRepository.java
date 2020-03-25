@@ -1,0 +1,15 @@
+package com.eros.example.elasticsearch.service;
+
+import com.eros.example.elasticsearch.model.Event;
+import com.eros.example.elasticsearch.model.LogStash;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+
+/**
+ * @Author: eros
+ * @Description:
+ * @Date: Created in 2020/3/16 17:57
+ * @Version: 1.0
+ * @Modified By:
+ */
+public interface EventSearchRepository extends ElasticsearchRepository<Event, String> {
+}
