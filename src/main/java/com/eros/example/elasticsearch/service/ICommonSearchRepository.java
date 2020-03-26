@@ -69,4 +69,18 @@ public interface ICommonSearchRepository {
      * @Exception:
      */
     void backup(List<CommonEsCondition> conditions);
+
+    /**
+     * @Description: 删除 index
+     * @Author: eros
+     * @Date: 2020/3/26 17:31
+     * @param condition
+     * @Return: boolean
+     * @Exception:
+     */
+    boolean deleteIndex(CommonEsCondition condition);
+
+    boolean closeIndex(CommonEsCondition condition);
+
+    boolean openIndex(CommonEsCondition condition);
 }

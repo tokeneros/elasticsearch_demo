@@ -1,18 +1,20 @@
 package com.eros.example.elasticsearch.service.impl;
 
 import com.eros.example.elasticsearch.service.ICommonSearchRepository;
+import com.eros.example.elasticsearch.service.ISnapshotsSearchRepository;
 import com.eros.example.elasticsearch.service.vo.CommonEsCondition;
 import org.elasticsearch.action.admin.cluster.snapshots.status.SnapshotsStatusRequest;
-import org.elasticsearch.action.admin.indices.flush.FlushRequest;
+import org.elasticsearch.action.admin.indices.close.CloseIndexRequest;
+import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
+import org.elasticsearch.action.support.IndicesOptions;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
@@ -34,6 +36,9 @@ public class CommonSearchRepository implements ICommonSearchRepository {
 
     @Autowired
     private ElasticsearchTemplate elasticsearchTemplate;
+
+    @Autowired
+    private ISnapshotsSearchRepository snapshotsSearchRepository;
 
     /**
      * @Description: 判断index 是否存在
@@ -146,10 +151,37 @@ public class CommonSearchRepository implements ICommonSearchRepository {
 
     @Override
     public void backup(List<CommonEsCondition> conditions) {
-        String[] snapshotName = new String[]{};
+//        String[] snapshotName = new String[]{};
         SnapshotsStatusRequest snapshotsStatusRequest = new SnapshotsStatusRequest();
+        snapshotsStatusRequest.repository("my_backup");
 //        snapshotsStatusRequest.
         elasticsearchTemplate.getClient().admin().cluster().snapshotsStatus(snapshotsStatusRequest);
+        snapshotsSearchRepository.snapshotsStatus();
+    }
+
+    @Override
+    public boolean deleteIndex(CommonEsCondition condition) {
+        return elasticsearchTemplate.deleteIndex(condition.getIndex());
+    }
+
+    @Override
+    public boolean closeIndex(CommonEsCondition condition) {
+        CloseIndexRequest closeIndexRequest = new CloseIndexRequest(condition.getIndex());
+        closeIndexRequest.timeout(TimeValue.timeValueMinutes(2));
+        closeIndexRequest.masterNodeTimeout(TimeValue.timeValueMinutes(1));
+        closeIndexRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
+        AcknowledgedResponse acknowledgedResponse = elasticsearchTemplate.getClient().admin().indices().close(closeIndexRequest).actionGet();
+        return acknowledgedResponse.isAcknowledged();
+    }
+
+    @Override
+    public boolean openIndex(CommonEsCondition condition) {
+        OpenIndexRequest openIndexRequest = new OpenIndexRequest(condition.getIndex());
+        openIndexRequest.timeout(TimeValue.timeValueMinutes(2));
+        openIndexRequest.masterNodeTimeout(TimeValue.timeValueMinutes(1));
+        openIndexRequest.indicesOptions(IndicesOptions.strictExpandOpen());
+        AcknowledgedResponse acknowledgedResponse = elasticsearchTemplate.getClient().admin().indices().open(openIndexRequest).actionGet();
+        return acknowledgedResponse.isAcknowledged();
     }
 
 }

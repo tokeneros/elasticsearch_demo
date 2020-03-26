@@ -4,12 +4,11 @@ import com.eros.example.elasticsearch.model.Blog;
 import com.eros.example.elasticsearch.model.Book;
 import com.eros.example.elasticsearch.model.Event;
 import com.eros.example.elasticsearch.model.LogStash;
-import com.eros.example.elasticsearch.service.BookSearchRepository;
-import com.eros.example.elasticsearch.service.EventSearchRepository;
-import com.eros.example.elasticsearch.service.ICommonSearchRepository;
-import com.eros.example.elasticsearch.service.LogStashSearchRepository;
+import com.eros.example.elasticsearch.service.*;
 import com.eros.example.elasticsearch.service.vo.CommonEsCondition;
+import org.elasticsearch.action.admin.cluster.repositories.get.GetRepositoriesResponse;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilder;
@@ -59,16 +58,31 @@ public class Executer  implements CommandLineRunner {
     @Autowired
     private ICommonSearchRepository commonSearchRepository;
 
+    @Autowired
+    private ISnapshotsSearchRepository snapshotsSearchRepository;
+
     @Override
     public void run(String... args) throws Exception {
         System.out.println("执行命令......");
-        // 备份
-        List<CommonEsCondition> conditions = new ArrayList<CommonEsCondition>();
-        CommonEsCondition commonEsCondition = new CommonEsCondition("logstash-2020.03.24","fluentd");
-        conditions.add(commonEsCondition);
-        commonEsCondition = new CommonEsCondition("logstash-2020.03.24","fluentd");
-        conditions.add(commonEsCondition);
-        commonSearchRepository.backup(conditions);
+//        System.out.println(commonSearchRepository.deleteIndex(new CommonEsCondition("logstash-2020.03.24","fluentd")));
+//        commonSearchRepository.delete("QL4r4nABbZ3mgqpNnuRs", new CommonEsCondition("logstash-2020.03.24","fluentd"));
+//        commonSearchRepository.closeIndex(new CommonEsCondition("logstash-2020.03.24","fluentd"));
+//        commonSearchRepository.openIndex(new CommonEsCondition("logstash-2020.03.24","fluentd"));
+        // 覆盖
+//        snapshotsSearchRepository.restoreSnapshot();
+//        GetRepositoriesResponse getRepositoriesResponse = snapshotsSearchRepository.repositoryStatus();
+//        if(snapshotsSearchRepository.deleteSnapshot()) {
+//            snapshotsSearchRepository.putSnapshot();
+//        }
+//        snapshotsSearchRepository.getSnapshot();
+
+        // 备份 todo 最终目的
+//        List<CommonEsCondition> conditions = new ArrayList<CommonEsCondition>();
+//        CommonEsCondition commonEsCondition = new CommonEsCondition("logstash-2020.03.24","fluentd");
+//        conditions.add(commonEsCondition);
+//        commonEsCondition = new CommonEsCondition("logstash-2020.03.24","fluentd");
+//        conditions.add(commonEsCondition);
+//        commonSearchRepository.backup(conditions);
 
         // 批量删除
 //        CommonEsCondition commonEsCondition = new CommonEsCondition("blog_test","blog_test");
@@ -178,7 +192,7 @@ public class Executer  implements CommandLineRunner {
 //            logStashes = elasticsearchTemplate.continueScroll(logStashes.getScrollId(), 10000, LogStash.class);
 //        }
 
-        System.out.println("执行结束......");
+         System.out.println("执行结束......");
     }
 
 }
